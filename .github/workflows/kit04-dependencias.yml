@@ -1,0 +1,134 @@
+name: Kit 04 - inventario de dependencias, sem homologacao
+
+on:
+  push:
+    branches: [f3/kit-04-consolidacao]
+    paths:
+      - '.github/workflows/kit04-dependencias.yml'
+      - 'Kit_Modulo_04_Transicao_de_Familia_F3V1/package.json'
+      - 'Kit_Modulo_04_Transicao_de_Familia_F3V1/pnpm-workspace.yaml'
+      - 'Kit_Modulo_04_Transicao_de_Familia_F3V1/pnpm-lock.yaml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kit04-dependencias-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  inventario-dependencias:
+    if: github.repository == 'entrpausa/metaprojeto' && github.event.repository.private == false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: bash
+        working-directory: Kit_Modulo_04_Transicao_de_Familia_F3V1
+    env:
+      npm_config_engine_strict: 'true'
+      npm_config_registry: https://registry.npmjs.org
+      pnpm_config_engine_strict: 'true'
+      pnpm_config_registry: https://registry.npmjs.org
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Proteger entradas antes do bootstrap
+        run: |
+          mkdir -p "$RUNNER_TEMP/kit04-deps"
+          git ls-files --error-unmatch -- package.json pnpm-workspace.yaml pnpm-lock.yaml
+          test ! -e node_modules
+          printf '%s  pnpm-lock.yaml\n' 'c62cbb6f776cbb7f497da67a9997df05af938a9b2573d0263d72f5a03c5c7569' > "$RUNNER_TEMP/kit04-deps/lock.sha256"
+          sha256sum --check "$RUNNER_TEMP/kit04-deps/lock.sha256"
+          sha256sum package.json pnpm-workspace.yaml > "$RUNNER_TEMP/kit04-deps/inputs.sha256"
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '26.13.1'
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115
+        with:
+          version: '12.9.1'
+          package_json_file: Kit_Modulo_04_Transicao_de_Familia_F3V1/package.json
+          run_install: false
+          cache: false
+      - name: Instalar resolucao preservada sem executar lifecycle
+        run: |
+          node -e 'if(process.versions.node!=="26.13.1")process.exit(1)'
+          test "$(pnpm --version)" = '12.9.1'
+          test "$(pnpm config get engineStrict)" = 'true'
+          sha256sum --check "$RUNNER_TEMP/kit04-deps/lock.sha256"
+          sha256sum --check "$RUNNER_TEMP/kit04-deps/inputs.sha256"
+          pnpm install --engine-strict --frozen-lockfile --ignore-scripts --ignore-pnpmfile
+      - name: Coletar arvores sem nova resolucao
+        run: |
+          pnpm list --lockfile-only --depth Infinity --json > "$RUNNER_TEMP/kit04-deps/lock-tree.json"
+          pnpm list --depth Infinity --json > "$RUNNER_TEMP/kit04-deps/installed-tree.json"
+      - name: Gerar inventario publico sem caminhos locais
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          import path from "node:path";
+          import {createHash} from "node:crypto";
+          const dir=path.join(process.env.RUNNER_TEMP,"kit04-deps");
+          const read=n=>JSON.parse(fs.readFileSync(path.join(dir,n),"utf8"));
+          function collect(trees){
+            if(!Array.isArray(trees))throw Error("Formato inesperado do pnpm list");
+            const out=new Map();let visits=0;
+            function visit(record,depth=0){
+              if(++visits>20000||depth>128)throw Error("Arvore excede limite de revisao");
+              for(const field of ["dependencies","devDependencies","optionalDependencies"]){
+                for(const [key,n] of Object.entries(record[field]||{})){
+                  if(!n||typeof n!=="object"||typeof n.version!=="string")throw Error("Dependencia sem versao legivel");
+                  const name=n.name||key;const id=name+"@"+n.version;
+                  if(!out.has(id))out.set(id,{name,version:n.version,path:n.path});
+                  visit(n,depth+1);
+                }
+              }
+            }
+            for(const root of trees)visit(root);
+            return [...out.values()];
+          }
+          const locked=collect(read("lock-tree.json")).map(({name,version})=>({name,version}));
+          const listed=collect(read("installed-tree.json"));
+          if(!locked.length||!listed.length)throw Error("Inventario vazio");
+          const installedMap=new Map(),unreadable=[];
+          for(const n of listed){
+            if(typeof n.path!=="string"||!fs.existsSync(path.join(n.path,"package.json"))){unreadable.push(n.name+"@"+n.version);continue;}
+            const p=JSON.parse(fs.readFileSync(path.join(n.path,"package.json"),"utf8"));
+            if(typeof p.name!=="string"||typeof p.version!=="string")throw Error("Manifesto instalado sem identidade");
+            const license=typeof p.license==="string"?p.license:(p.license&&typeof p.license.type==="string"?p.license.type:"NOASSERTION");
+            const licenseFiles=[];
+            for(const name of fs.readdirSync(n.path)){
+              if(!/^(licen[cs]e|copying|notice)([._-].*)?$/i.test(name))continue;
+              const file=path.join(n.path,name),stat=fs.lstatSync(file);
+              if(!stat.isFile()||stat.isSymbolicLink()||stat.size>1048576)continue;
+              licenseFiles.push({name,sha256:createHash("sha256").update(fs.readFileSync(file)).digest("hex")});
+            }
+            installedMap.set(p.name+"@"+p.version,{name:p.name,version:p.version,declaredLicense:license,nodeEngine:p.engines?.node||null,lifecycleScriptNames:["preinstall","install","postinstall","prepare"].filter(k=>typeof p.scripts?.[k]==="string"),rootLicenseFiles:licenseFiles});
+          }
+          const installed=[...installedMap.values()].sort((a,b)=>(a.name+"@"+a.version).localeCompare(b.name+"@"+b.version));
+          const groups=new Map();
+          for(const p of installed){const key=p.declaredLicense.length<=200?p.declaredLicense:"UNSUPPORTED_LICENSE_FIELD";groups.set(key,(groups.get(key)||0)+1);}
+          const prereleases=locked.filter(p=>/^\d+\.\d+\.\d+-/.test(p.version)).map(p=>({...p,installed:installedMap.has(p.name+"@"+p.version)}));
+          const missing=installed.filter(p=>!p.declaredLicense.trim()||["NOASSERTION","UNKNOWN","UNLICENSED"].includes(p.declaredLicense.toUpperCase()));
+          const scripts=installed.filter(p=>p.lifecycleScriptNames.length).map(p=>p.name+"@"+p.version);
+          const result={commit:process.env.GITHUB_SHA,node:process.version,pnpm:"12.9.1",countBasis:"unique name/version pairs; peer contexts collapsed; lock scope is pnpm list output; installed means readable installed manifest",scope:"project graph; bootstrap reviewed separately; root license filenames only",counts:{lockedTreePairs:locked.length,installedPairs:installed.length,listedWithoutReadableManifest:unreadable.length},declaredLicenseCounts:Object.fromEntries(groups),prereleases,missingOrRestrictedLicense:missing.map(p=>p.name+"@"+p.version),declaredLifecycleScriptPackages:scripts,listedWithoutReadableManifest:unreadable,licenseReviewComplete:false,vulnerabilityReviewComplete:false,releaseAuthorized:false};
+          for(const [name,value] of [["inventory.json",result],["installed-packages.json",installed],["locked-packages.json",locked]])fs.writeFileSync(path.join(dir,name),JSON.stringify(value,null,2)+"\n");
+          console.log("R2_03_DEPENDENCY_SUMMARY="+JSON.stringify(result));
+          NODE
+      - name: Conferir integridade final e limite dos relatorios
+        run: |
+          sha256sum --check "$RUNNER_TEMP/kit04-deps/lock.sha256"
+          sha256sum --check "$RUNNER_TEMP/kit04-deps/inputs.sha256"
+          git diff --exit-code -- package.json pnpm-workspace.yaml pnpm-lock.yaml
+          node --input-type=module -e 'import fs from "node:fs";const root=process.env.RUNNER_TEMP+"/kit04-deps/";let total=0;for(const n of ["inventory.json","installed-packages.json","locked-packages.json"]){const s=fs.lstatSync(root+n);if(!s.isFile()||s.isSymbolicLink())throw Error("Relatorio irregular");total+=s.size;}if(total>1048576)throw Error("Inventario acima de 1 MiB");'
+      - name: Guardar somente inventarios tecnicos sanitizados
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: kit04-deps-public-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/kit04-deps/inventory.json
+            ${{ runner.temp }}/kit04-deps/installed-packages.json
+            ${{ runner.temp }}/kit04-deps/locked-packages.json
+          retention-days: 7
+          if-no-files-found: error

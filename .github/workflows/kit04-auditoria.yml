@@ -1,0 +1,65 @@
+name: Kit 04 - auditoria inicial, nao homologacao F3
+
+on:
+  push:
+    branches: [f3/kit-04-consolidacao]
+    paths:
+      - 'Kit_Modulo_04_Transicao_de_Familia_F3V1/**'
+      - 'tools/audit-kit04.mjs'
+      - 'tests/audit-kit04.test.mjs'
+      - '.github/workflows/kit04-auditoria.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kit04-auditoria-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  auditoria-inicial:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - name: Obter branch atual sem persistir credenciais
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Obter importacao original imutavel
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: 7c3c9a57beab847bf7a08565d2b7a185ee4c90f4
+          path: .kit04-baseline
+          persist-credentials: false
+      - name: Preparar familia Node exigida pelo candidato
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '26'
+      - name: Registrar e conferir versao real do Node
+        run: node -e "console.log(process.version);if(Number(process.versions.node.split('.')[0])!==26)process.exit(1)"
+      - name: Testar o proprio auditor
+        run: node --test tests/audit-kit04.test.mjs
+      - name: Verificar inventario, bytes e SHA-256 do original
+        run: node tools/audit-kit04.mjs .kit04-baseline/Kit_Modulo_04_Transicao_de_Familia_F3V1
+      - name: Diagnosticar ambiente atual sem instalar dependencias
+        working-directory: Kit_Modulo_04_Transicao_de_Familia_F3V1
+        run: node tools/atelier.mjs doctor
+      - name: Reexecutar testes nativos da branch atual
+        working-directory: Kit_Modulo_04_Transicao_de_Familia_F3V1
+        run: node --test tests/core.test.mjs
+      - name: Confirmar que o candidato continua bloqueado para release
+        working-directory: Kit_Modulo_04_Transicao_de_Familia_F3V1
+        shell: bash
+        run: |
+          code=0
+          node tools/atelier.mjs release-check || code=$?
+          if [ "$code" -ne 2 ]; then
+            echo "O candidato deve retornar exatamente 2 no release-check."
+            exit 1
+          fi
+          node --input-type=module -e "import fs from 'node:fs';import assert from 'node:assert/strict';const g=JSON.parse(fs.readFileSync('GATES.json','utf8'));assert.equal(g.canClaimCompleteF3,false);assert.equal(g.canPublish,false)"
+      - name: Registrar limite desta verificacao
+        if: always()
+        shell: bash
+        run: |
+          printf '%s\n' '## Auditoria inicial do Kit 04' 'Este workflow nao e homologacao F3.' 'Nao instala dependencias npm, nao gera build oficial, nao publica, nao faz merge e nao executa fontes legadas.' 'O Node e selecionado pela familia 26; o patch e registrado no log e ainda nao esta fixado para reproducao final.' >> "$GITHUB_STEP_SUMMARY"

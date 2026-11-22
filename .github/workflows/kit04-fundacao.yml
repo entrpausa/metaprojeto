@@ -28,20 +28,34 @@ jobs:
       npm_config_registry: https://registry.npmjs.org
       pnpm_config_engine_strict: 'true'
       pnpm_config_registry: https://registry.npmjs.org
+      EXPECTED_LOCK_SHA256: c62cbb6f776cbb7f497da67a9997df05af938a9b2573d0263d72f5a03c5c7569
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+      - name: Conferir entradas versionadas antes do bootstrap
+        id: source_lock
+        run: |
+          mkdir -p "$RUNNER_TEMP/kit04-r2"
+          git ls-files --error-unmatch -- package.json pnpm-workspace.yaml pnpm-lock.yaml
+          test -f pnpm-lock.yaml && test ! -L pnpm-lock.yaml
+          test ! -e node_modules
+          git diff --exit-code -- package.json pnpm-workspace.yaml pnpm-lock.yaml
+          printf '%s  pnpm-lock.yaml\n' "$EXPECTED_LOCK_SHA256" > "$RUNNER_TEMP/kit04-r2/lockfile.sha256"
+          sha256sum --check "$RUNNER_TEMP/kit04-r2/lockfile.sha256"
+          sha256sum package.json > "$RUNNER_TEMP/kit04-r2/package.sha256"
+          sha256sum package.json pnpm-workspace.yaml > "$RUNNER_TEMP/kit04-r2/inputs.sha256"
+          cp pnpm-lock.yaml "$RUNNER_TEMP/kit04-r2/pnpm-lock.yaml"
       - name: Obter referencia original para a auditoria
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: 7c3c9a57beab847bf7a08565d2b7a185ee4c90f4
           path: .kit04-baseline
           persist-credentials: false
-      - name: Preparar Node sem alterar a familia aprovada
+      - name: Preparar Node no patch reproduzivel
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
-          node-version: '26'
+          node-version: '26.13.1'
       - name: Conferir candidato antes de gerar arquivos
         run: node ../tools/audit-kit04.mjs ../.kit04-baseline/Kit_Modulo_04_Transicao_de_Familia_F3V1
       - name: Preparar somente o gerenciador declarado
@@ -54,11 +68,10 @@ jobs:
       - name: Conferir ferramentas e registrar ambiente
         id: tools
         run: |
-          mkdir -p "$RUNNER_TEMP/kit04-r2"
           node --version | tee "$RUNNER_TEMP/kit04-r2/node.log"
           PNPM_VERSION="$(pnpm --version)"
           printf '%s\n' "$PNPM_VERSION" | tee "$RUNNER_TEMP/kit04-r2/pnpm.log"
-          node -e 'if(Number(process.versions.node.split(".")[0])!==26){console.error("Node fora da familia 26: "+process.version);process.exit(1)}'
+          node -e 'if(process.versions.node!=="26.13.1"){console.error("Node inesperado: "+process.version);process.exit(1)}'
           if [ "$PNPM_VERSION" != '12.9.1' ]; then
             printf 'pnpm incorreto: esperado=12.9.1 obtido=%s\n' "$PNPM_VERSION" >&2
             exit 1
@@ -69,23 +82,24 @@ jobs:
             printf 'engineStrict deve ser true; instalacao bloqueada.\n' >&2
             exit 1
           fi
-          sha256sum package.json > "$RUNNER_TEMP/kit04-r2/package.sha256"
-      - name: Resolver lockfile sem lifecycle ou pnpmfile
-        id: resolve
+      - name: Conferir lockfile preservado sem resolver novamente
+        id: lock_check
         continue-on-error: true
         run: |
-          pnpm install --engine-strict --lockfile-only --no-frozen-lockfile --ignore-scripts --ignore-pnpmfile 2>&1 | tee "$RUNNER_TEMP/kit04-r2/resolve.log"
-          git diff --exit-code -- package.json pnpm-workspace.yaml
-          cp pnpm-lock.yaml "$RUNNER_TEMP/kit04-r2/pnpm-lock.yaml"
-      - name: Instalar a resolucao congelada sem lifecycle
+          sha256sum --check "$RUNNER_TEMP/kit04-r2/lockfile.sha256"
+          sha256sum --check "$RUNNER_TEMP/kit04-r2/inputs.sha256"
+          cmp pnpm-lock.yaml "$RUNNER_TEMP/kit04-r2/pnpm-lock.yaml"
+          git diff --exit-code -- package.json pnpm-workspace.yaml pnpm-lock.yaml
+      - name: Instalar diretamente do lockfile versionado sem lifecycle
         id: install
-        if: steps.resolve.outcome == 'success'
+        if: steps.lock_check.outcome == 'success'
         continue-on-error: true
         run: |
           pnpm install --engine-strict --frozen-lockfile --ignore-scripts --ignore-pnpmfile 2>&1 | tee "$RUNNER_TEMP/kit04-r2/install.log"
+          sha256sum --check "$RUNNER_TEMP/kit04-r2/lockfile.sha256"
+          sha256sum --check "$RUNNER_TEMP/kit04-r2/inputs.sha256"
           cmp pnpm-lock.yaml "$RUNNER_TEMP/kit04-r2/pnpm-lock.yaml"
-          sha256sum --check "$RUNNER_TEMP/kit04-r2/package.sha256"
-          git diff --exit-code -- package.json pnpm-workspace.yaml
+          git diff --exit-code -- package.json pnpm-workspace.yaml pnpm-lock.yaml
           node --input-type=module -e 'import fs from "node:fs";const p=JSON.parse(fs.readFileSync("package.json","utf8"));const rows=Object.entries({...p.dependencies,...p.devDependencies}).map(([name,declared])=>{const d=JSON.parse(fs.readFileSync("node_modules/"+name+"/package.json","utf8"));return {name,declared,installed:d.version,license:d.license||"NOASSERTION",engines:d.engines||null};});fs.writeFileSync(process.env.RUNNER_TEMP+"/kit04-r2/installed.json",JSON.stringify(rows,null,2)+"\n");if(rows.some(r=>r.installed!==r.declared))process.exit(1);' 2>&1 | tee "$RUNNER_TEMP/kit04-r2/packages.log"
       - name: Executar tipagem declarada, ainda de escopo parcial
         id: types
@@ -107,20 +121,31 @@ jobs:
         if: steps.install.outcome == 'success'
         continue-on-error: true
         run: pnpm run build 2>&1 | tee "$RUNNER_TEMP/kit04-r2/build.log"
+      - name: Conferir preservacao final das entradas
+        id: integrity
+        if: always()
+        continue-on-error: true
+        run: |
+          sha256sum --check "$RUNNER_TEMP/kit04-r2/lockfile.sha256"
+          sha256sum --check "$RUNNER_TEMP/kit04-r2/inputs.sha256"
+          cmp pnpm-lock.yaml "$RUNNER_TEMP/kit04-r2/pnpm-lock.yaml"
+          git diff --exit-code -- package.json pnpm-workspace.yaml pnpm-lock.yaml
       - name: Registrar resultados sem promover R2 ou F3
         if: always()
         env:
+          S_SOURCE_LOCK: ${{ steps.source_lock.outcome }}
           S_TOOLS: ${{ steps.tools.outcome }}
-          S_RESOLVE: ${{ steps.resolve.outcome }}
+          S_LOCK_CHECK: ${{ steps.lock_check.outcome }}
           S_INSTALL: ${{ steps.install.outcome }}
           S_TYPES: ${{ steps.types.outcome }}
           S_SCHEMAS: ${{ steps.schemas.outcome }}
           S_TESTS: ${{ steps.tests.outcome }}
           S_BUILD: ${{ steps.build.outcome }}
+          S_INTEGRITY: ${{ steps.integrity.outcome }}
         run: |
           mkdir -p "$RUNNER_TEMP/kit04-r2"
-          node --input-type=module -e 'import fs from "node:fs";const names=["TOOLS","RESOLVE","INSTALL","TYPES","SCHEMAS","TESTS","BUILD"];const stages=Object.fromEntries(names.map(n=>[n.toLowerCase(),process.env["S_"+n]||"unknown"]));const result={commit:process.env.GITHUB_SHA,node:process.version,stages,planningSourceSha256:"dab2e94a4b38edd338e87380b7385965d575f7e54e2f581cd4c6c3d15aaaaaf9",typecheckConfiguration:JSON.parse(fs.readFileSync("tsconfig.json","utf8")),coreTypingVerified:false,canClaimR2Complete:false,canClaimF3Complete:false,ciVisibility:"public_technical_only",publicationAuthorized:false};fs.writeFileSync(process.env.RUNNER_TEMP+"/kit04-r2/result.json",JSON.stringify(result,null,2)+"\n");'
-          printf '%s\n' '## Sonda R2' 'Configuracao original: tipagem parcial; verde nao fecha R2 nem homologa F3.' 'Logs sao publicos; artefato limitado a lockfile e metadados tecnicos publicos.' >> "$GITHUB_STEP_SUMMARY"
+          node --input-type=module -e 'import fs from "node:fs";import {createHash} from "node:crypto";const names=["SOURCE_LOCK","TOOLS","LOCK_CHECK","INSTALL","TYPES","SCHEMAS","TESTS","BUILD","INTEGRITY"];const stages=Object.fromEntries(names.map(n=>[n.toLowerCase(),process.env["S_"+n]||"unknown"]));const actual=fs.existsSync("pnpm-lock.yaml")?createHash("sha256").update(fs.readFileSync("pnpm-lock.yaml")).digest("hex"):null;const result={commit:process.env.GITHUB_SHA,node:process.version,stages,lockfileVerification:{mode:"committed_frozen_no_resolution",expectedSha256:process.env.EXPECTED_LOCK_SHA256,actualSha256:actual,sourceCheck:stages.source_lock,finalCheck:stages.integrity},planningSourceSha256:"dab2e94a4b38edd338e87380b7385965d575f7e54e2f581cd4c6c3d15aaaaaf9",typecheckConfiguration:JSON.parse(fs.readFileSync("tsconfig.json","utf8")),coreTypingVerified:false,canClaimR2Complete:false,canClaimF3Complete:false,ciVisibility:"public_technical_only",publicationAuthorized:false};fs.writeFileSync(process.env.RUNNER_TEMP+"/kit04-r2/result.json",JSON.stringify(result,null,2)+"\n");'
+          printf '%s\n' '## Sonda R2' 'Node 26.13.1 e pnpm 12.9.1; instalacao direta do lockfile versionado, sem nova resolucao.' 'SHA-256 verificado antes do bootstrap, depois do bootstrap, depois da instalacao e ao final.' 'Tipagem parcial; verde nao fecha R2 nem homologa F3.' 'Artefato limitado ao lockfile e a metadados tecnicos publicos.' >> "$GITHUB_STEP_SUMMARY"
       - name: Limitar os arquivos tecnicos publicaveis
         id: public_files
         if: always()

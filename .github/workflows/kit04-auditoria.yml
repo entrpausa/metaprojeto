@@ -31,12 +31,12 @@ jobs:
           ref: 7c3c9a57beab847bf7a08565d2b7a185ee4c90f4
           path: .kit04-baseline
           persist-credentials: false
-      - name: Preparar familia Node exigida pelo candidato
+      - name: Preparar Node no patch reproduzivel
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: '26'
-      - name: Registrar e conferir versao real do Node
-        run: node -e "console.log(process.version);if(Number(process.versions.node.split('.')[0])!==26)process.exit(1)"
+          node-version: '26.13.1'
+      - name: Registrar e conferir versao exata do Node
+        run: node -e 'console.log(process.version);if(process.versions.node!=="26.13.1")process.exit(1)'
       - name: Testar o proprio auditor
         run: node --test tests/audit-kit04.test.mjs
       - name: Verificar inventario, bytes e SHA-256 do original
@@ -57,9 +57,9 @@ jobs:
             echo "O candidato deve retornar exatamente 2 no release-check."
             exit 1
           fi
-          node --input-type=module -e "import fs from 'node:fs';import assert from 'node:assert/strict';const g=JSON.parse(fs.readFileSync('GATES.json','utf8'));assert.equal(g.canClaimCompleteF3,false);assert.equal(g.canPublish,false)"
+          node --input-type=module -e 'import fs from "node:fs";import assert from "node:assert/strict";const g=JSON.parse(fs.readFileSync("GATES.json","utf8"));assert.equal(g.canClaimCompleteF3,false);assert.equal(g.canPublish,false)'
       - name: Registrar limite desta verificacao
         if: always()
         shell: bash
         run: |
-          printf '%s\n' '## Auditoria inicial do Kit 04' 'Este workflow nao e homologacao F3.' 'Nao instala dependencias npm, nao gera build oficial, nao publica, nao faz merge e nao executa fontes legadas.' 'O Node e selecionado pela familia 26; o patch e registrado no log e ainda nao esta fixado para reproducao final.' >> "$GITHUB_STEP_SUMMARY"
+          printf '%s\n' '## Auditoria inicial do Kit 04' 'Este workflow nao e homologacao F3.' 'Nao instala dependencias npm, nao gera build oficial, nao publica, nao faz merge e nao executa fontes legadas.' 'Node fixado em 26.13.1 e conferido por versao exata; isso nao encerra a revisao das dependencias transitivas.' >> "$GITHUB_STEP_SUMMARY"

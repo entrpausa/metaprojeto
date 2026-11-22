@@ -1,0 +1,72 @@
+{
+  "status": "blocked_candidate",
+  "canClaimCompleteF3": false,
+  "canPublish": false,
+  "gates": [
+    {
+      "id": "G00",
+      "scope": "Plano e base visual",
+      "status": "passed"
+    },
+    {
+      "id": "G01",
+      "scope": "Núcleo auxiliar e jobs",
+      "status": "passed"
+    },
+    {
+      "id": "G02",
+      "scope": "Prévia Chromium/local/file URL",
+      "status": "passed"
+    },
+    {
+      "id": "G03",
+      "scope": "Recuperação privada das duas estruturas",
+      "status": "passed"
+    },
+    {
+      "id": "G04",
+      "scope": "Contratos JSON em fixtures",
+      "status": "passed_python_only"
+    },
+    {
+      "id": "G05",
+      "scope": "Build Vite/Lit/TypeScript/Ajv",
+      "status": "blocked_not_executed"
+    },
+    {
+      "id": "G06",
+      "scope": "Lockfile/compatibilidade/licenças transitivas",
+      "status": "blocked_not_executed"
+    },
+    {
+      "id": "G07",
+      "scope": "Transformação dos métodos e equivalência funcional",
+      "status": "blocked_not_implemented"
+    },
+    {
+      "id": "G08",
+      "scope": "Suite de módulos convertidos",
+      "status": "blocked_not_implemented"
+    },
+    {
+      "id": "G09",
+      "scope": "Caddy/Docker/publicação HTTPS",
+      "status": "blocked_not_executed"
+    },
+    {
+      "id": "G10",
+      "scope": "PWA/offline upgrade e armazenamento persistente",
+      "status": "blocked_not_implemented"
+    },
+    {
+      "id": "G11",
+      "scope": "Firefox/WebKit/Safari/assistivas",
+      "status": "blocked_not_executed"
+    },
+    {
+      "id": "G12",
+      "scope": "WCAG humana/segurança completa",
+      "status": "blocked_not_executed"
+    }
+  ]
+}

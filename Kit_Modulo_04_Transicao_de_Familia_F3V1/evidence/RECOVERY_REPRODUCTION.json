@@ -1,0 +1,17 @@
+{
+  "exit": 0,
+  "result": [
+    {
+      "file": "modulo-00-v1.html",
+      "recoveredUnits": 12,
+      "pass": true,
+      "family3Approved": false
+    },
+    {
+      "file": "open-space-f2-v1.html",
+      "recoveredUnits": 32,
+      "pass": true,
+      "family3Approved": false
+    }
+  ]
+}

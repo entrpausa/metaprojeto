@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:atelie:private-job:1",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "const": "atelie-private-job/1"
+    },
+    "plan": {
+      "$ref": "urn:atelie:plan:1"
+    },
+    "inventory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 8388608
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "required": [
+          "path",
+          "bytes",
+          "sha256"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 256
+    },
+    "approval": {
+      "type": "object",
+      "properties": {
+        "planHash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "kind": {
+          "const": "local_acknowledgement_not_signature"
+        },
+        "scope": {
+          "const": "private_source_recovery_only"
+        }
+      },
+      "required": [
+        "planHash",
+        "kind",
+        "scope"
+      ],
+      "additionalProperties": false
+    },
+    "containsSourceContents": {
+      "const": false
+    },
+    "publicationAuthorized": {
+      "const": false
+    }
+  },
+  "required": [
+    "schema",
+    "plan",
+    "inventory",
+    "approval",
+    "containsSourceContents",
+    "publicationAuthorized"
+  ],
+  "additionalProperties": false
+}

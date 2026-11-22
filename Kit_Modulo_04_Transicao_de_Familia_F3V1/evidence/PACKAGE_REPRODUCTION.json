@@ -1,0 +1,22 @@
+{
+  "cleanCopyBuildPreview": true,
+  "previewByteForByteReproduced": true,
+  "coreTestsInCleanCopyPassed": true,
+  "originals": [
+    {
+      "file": "modulo-00-v1.html",
+      "unchanged": true
+    },
+    {
+      "file": "open-space-f2-v1.html",
+      "unchanged": true
+    },
+    {
+      "file": "ABRIR-V06.html",
+      "unchanged": true
+    }
+  ],
+  "sourceOrRecoveryContentsDistributed": false,
+  "officialBuildExecuted": false,
+  "scope": "Auxiliary preview and core only; not F3 conformance."
+}

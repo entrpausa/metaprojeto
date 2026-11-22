@@ -1,0 +1,135 @@
+{
+  "suite": "auxiliary-preview-chromium",
+  "results": [
+    {
+      "name": "HTTP inicial",
+      "pass": true
+    },
+    {
+      "name": "MIME correto",
+      "pass": true
+    },
+    {
+      "name": "CSP presente",
+      "pass": true
+    },
+    {
+      "name": "Candidato explícito",
+      "pass": true
+    },
+    {
+      "name": "Job inicialmente bloqueado",
+      "pass": true
+    },
+    {
+      "name": "Exemplo mantém selo após análise",
+      "pass": true
+    },
+    {
+      "name": "Adaptador detectado",
+      "pass": true
+    },
+    {
+      "name": "Família por metadata",
+      "pass": true
+    },
+    {
+      "name": "Foco preservado ao inspecionar",
+      "pass": true
+    },
+    {
+      "name": "Gates visíveis",
+      "pass": true
+    },
+    {
+      "name": "Download de job real",
+      "pass": true
+    },
+    {
+      "name": "Job não transporta fontes",
+      "pass": true
+    },
+    {
+      "name": "Job não autoriza publicação",
+      "pass": true
+    },
+    {
+      "name": "Foco ao fechar inspetor",
+      "pass": true
+    },
+    {
+      "name": "Reabrir inspetor",
+      "pass": true
+    },
+    {
+      "name": "Alteração invalida aprovação",
+      "pass": true
+    },
+    {
+      "name": "Limpeza da sessão",
+      "pass": true
+    },
+    {
+      "name": "Legado não executado",
+      "pass": true
+    },
+    {
+      "name": "Conteúdo privado não renderizado",
+      "pass": true
+    },
+    {
+      "name": "Sem requisições externas",
+      "pass": true
+    },
+    {
+      "name": "ZIP bloqueia sem extrair",
+      "pass": true
+    },
+    {
+      "name": "Sem overflow horizontal móvel",
+      "pass": true
+    },
+    {
+      "name": "Reflow viewport equivalente a zoom200",
+      "pass": true
+    },
+    {
+      "name": "Tela desktop cabe no quadro",
+      "pass": true
+    },
+    {
+      "name": "Sem erro JavaScript",
+      "pass": true
+    },
+    {
+      "name": "Cabeçalho Host estranho recusado",
+      "pass": true
+    },
+    {
+      "name": "Fonte/segredo não servido",
+      "pass": true
+    },
+    {
+      "name": "POST recusado",
+      "pass": true
+    },
+    {
+      "name": "Arquivo de documentação não público",
+      "pass": true
+    },
+    {
+      "name": "Duas instâncias isolam estado",
+      "pass": true
+    },
+    {
+      "name": "Prévia file URL analisa em Chromium",
+      "pass": true
+    }
+  ],
+  "passed": 31,
+  "failed": 0,
+  "officialViteLitBuildTested": false,
+  "fullWCAGAudit": false,
+  "firefox": "not_available",
+  "webkit": "not_available"
+}

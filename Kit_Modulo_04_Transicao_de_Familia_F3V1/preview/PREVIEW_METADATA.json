@@ -1,0 +1,11 @@
+{
+  "status": "auxiliary_preview_not_official_build",
+  "officialStackExecuted": false,
+  "sourceFiles": [
+    "packages/core/core.mjs",
+    "packages/ui/console.mjs",
+    "packages/tokens/tokens.css"
+  ],
+  "csp": "default-src 'none'; script-src 'sha256-bWBBftVwW4jk5xeFGjhmnPOd9QV+qaJnYWEpjk9sSYA='; style-src 'sha256-xOgG+Q8lRxq55Af6y93yQMDwVPpq47AItCz8Tnbqu+c='; img-src 'none'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'",
+  "sourceSha256": "8aae731336d9c167c836c9c762ce12ab185f3223b826d5e4c1912ee93d292cbc"
+}

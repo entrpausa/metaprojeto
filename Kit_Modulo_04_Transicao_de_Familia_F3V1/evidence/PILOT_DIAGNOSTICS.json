@@ -1,0 +1,105 @@
+[
+  {
+    "file": "modulo-00-v1.html",
+    "command": "inspect",
+    "exit": 0,
+    "entries": [
+      {
+        "path": "modulo-00-v1.html",
+        "bytes": 123972,
+        "sha256": "793c227a32d2ba8ae785db1a56359e2a482c122e880a0604d675f89136ecb4ac",
+        "kind": "html",
+        "family": null,
+        "module": "modulo-00-v1",
+        "adapter": "atelie-components/1",
+        "recoverableFiles": 12,
+        "issues": [
+          {
+            "severity": "review",
+            "code": "DYNAMIC_UNRESOLVED",
+            "message": "Referências dinâmicas JS/CSS e equivalência de domínio ainda não verificadas."
+          }
+        ],
+        "recoveryNote": "Blocos e componentes preservados; nomes originais de arquivos não foram inventados."
+      }
+    ],
+    "planHash": "8e920b78f52b802f31d7618ecf327585551d9fa031268ee089ed237a1bde4ec5"
+  },
+  {
+    "file": "open-space-f2-v1.html",
+    "command": "inspect",
+    "exit": 0,
+    "entries": [
+      {
+        "path": "open-space-f2-v1.html",
+        "bytes": 285773,
+        "sha256": "a35bf2801bfdf3fd0a6445db9c4b9419077e322d463e400602a27b752fd25969",
+        "kind": "html",
+        "family": "2.2.0",
+        "module": "open-space-f2-v1",
+        "adapter": "atelie-source-map/1",
+        "recoverableFiles": 32,
+        "issues": [
+          {
+            "severity": "review",
+            "code": "HTML_REVIEW",
+            "message": "2 handlers inline: revisar CSP"
+          },
+          {
+            "severity": "review",
+            "code": "DYNAMIC_UNRESOLVED",
+            "message": "Referências dinâmicas JS/CSS e equivalência de domínio ainda não verificadas."
+          }
+        ],
+        "recoveryNote": "Recuperação textual exata; não é conversão F3."
+      }
+    ],
+    "planHash": "acf7e98218e3ce74944fd84b824cfe73d3b76758b56b45ff3537ab9344399f81"
+  },
+  {
+    "file": "ABRIR-V06.html",
+    "command": "inspect",
+    "exit": 0,
+    "entries": [
+      {
+        "path": "ABRIR-V06.html",
+        "bytes": 7382,
+        "sha256": "a9ae2827018c994736fac8420f48f2582f95345c4e15ff295e5781cc16778994",
+        "kind": "html",
+        "family": null,
+        "module": null,
+        "adapter": "manual",
+        "recoverableFiles": 0,
+        "issues": [
+          {
+            "severity": "block",
+            "code": "MISSING_ASSET",
+            "message": "interface-v06.css"
+          },
+          {
+            "severity": "block",
+            "code": "MISSING_ASSET",
+            "message": "cache-v06.js"
+          },
+          {
+            "severity": "block",
+            "code": "MISSING_ASSET",
+            "message": "media-v06.js"
+          },
+          {
+            "severity": "block",
+            "code": "MISSING_ASSET",
+            "message": "galeria-v06.js"
+          },
+          {
+            "severity": "review",
+            "code": "DYNAMIC_UNRESOLVED",
+            "message": "Referências dinâmicas JS/CSS e equivalência de domínio ainda não verificadas."
+          }
+        ],
+        "recoveryNote": "Sem fonte embutida reconhecida; requer adaptador de domínio."
+      }
+    ],
+    "planHash": "df970497e277f3c9a4fa5f80d3be57aac8ee543b131fd321cc5ca0786abe7d5a"
+  }
+]

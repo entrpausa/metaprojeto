@@ -1,0 +1,245 @@
+TAP version 13
+# Subtest: SHA-256 padrão
+ok 1 - SHA-256 padrão
+  ---
+  duration_ms: 10.064132
+  ...
+# Subtest: Caminho bloqueado "../x"
+ok 2 - Caminho bloqueado "../x"
+  ---
+  duration_ms: 0.427391
+  ...
+# Subtest: Caminho bloqueado "/tmp/x"
+ok 3 - Caminho bloqueado "/tmp/x"
+  ---
+  duration_ms: 0.128268
+  ...
+# Subtest: Caminho bloqueado "C:/x"
+ok 4 - Caminho bloqueado "C:/x"
+  ---
+  duration_ms: 0.106142
+  ...
+# Subtest: Caminho bloqueado "a\\\\x"
+ok 5 - Caminho bloqueado "a\\\\x"
+  ---
+  duration_ms: 0.085548
+  ...
+# Subtest: Caminho bloqueado "a/../b"
+ok 6 - Caminho bloqueado "a/../b"
+  ---
+  duration_ms: 0.170259
+  ...
+# Subtest: Caminho bloqueado "a//b"
+ok 7 - Caminho bloqueado "a//b"
+  ---
+  duration_ms: 0.232666
+  ...
+# Subtest: Caminho bloqueado "a/./b"
+ok 8 - Caminho bloqueado "a/./b"
+  ---
+  duration_ms: 0.106711
+  ...
+# Subtest: Caminho bloqueado "nul.txt"
+ok 9 - Caminho bloqueado "nul.txt"
+  ---
+  duration_ms: 0.148643
+  ...
+# Subtest: Caminho bloqueado "a\\u0000b"
+ok 10 - Caminho bloqueado "a\\u0000b"
+  ---
+  duration_ms: 0.154811
+  ...
+# Subtest: Caminho bloqueado "a."
+ok 11 - Caminho bloqueado "a."
+  ---
+  duration_ms: 0.143061
+  ...
+# Subtest: Caminho unicode preservado
+ok 12 - Caminho unicode preservado
+  ---
+  duration_ms: 0.138277
+  ...
+# Subtest: Objeto canônico tem ordem determinística
+ok 13 - Objeto canônico tem ordem determinística
+  ---
+  duration_ms: 3.075777
+  ...
+# Subtest: JSON profundo bloqueado
+ok 14 - JSON profundo bloqueado
+  ---
+  duration_ms: 0.396632
+  ...
+# Subtest: JSON prototype bloqueado
+ok 15 - JSON prototype bloqueado
+  ---
+  duration_ms: 0.176834
+  ...
+# Subtest: Script não vira DOM executado
+ok 16 - Script não vira DOM executado
+  ---
+  duration_ms: 0.723285
+  ...
+# Subtest: Atributo com sinal maior
+ok 17 - Atributo com sinal maior
+  ---
+  duration_ms: 0.160465
+  ...
+# Subtest: Comentários são ignorados
+ok 18 - Comentários são ignorados
+  ---
+  duration_ms: 0.198419
+  ...
+# Subtest: Atributo duplicado bloqueia
+ok 19 - Atributo duplicado bloqueia
+  ---
+  duration_ms: 0.151219
+  ...
+# Subtest: Fonte recuperável exata
+ok 20 - Fonte recuperável exata
+  ---
+  duration_ms: 0.693039
+  ...
+# Subtest: Path traversal embutido bloqueado
+ok 21 - Path traversal embutido bloqueado
+  ---
+  duration_ms: 0.265213
+  ...
+# Subtest: URL fora da raiz bloqueada
+ok 22 - URL fora da raiz bloqueada
+  ---
+  duration_ms: 0.310293
+  ...
+# Subtest: URL normalizada
+ok 23 - URL normalizada
+  ---
+  duration_ms: 0.165123
+  ...
+# Subtest: Referência remota explícita
+ok 24 - Referência remota explícita
+  ---
+  duration_ms: 0.075486
+  ...
+# Subtest: Colisão case-insensitive de entradas bloqueia
+ok 25 - Colisão case-insensitive de entradas bloqueia
+  ---
+  duration_ms: 0.640389
+  ...
+# Subtest: Arquivo ZIP bloqueado
+ok 26 - Arquivo ZIP bloqueado
+  ---
+  duration_ms: 0.182483
+  ...
+# Subtest: Entrada vazia bloqueia
+ok 27 - Entrada vazia bloqueia
+  ---
+  duration_ms: 0.109882
+  ...
+# Subtest: Quantidade excedida bloqueia
+ok 28 - Quantidade excedida bloqueia
+  ---
+  duration_ms: 0.338154
+  ...
+# Subtest: Arquivo excedido bloqueia
+ok 29 - Arquivo excedido bloqueia
+  ---
+  duration_ms: 0.15791
+  ...
+# Subtest: Asset ausente detectado
+ok 30 - Asset ausente detectado
+  ---
+  duration_ms: 26.414962
+  ...
+# Subtest: Asset fornecido resolve
+ok 31 - Asset fornecido resolve
+  ---
+  duration_ms: 0.953741
+  ...
+# Subtest: Sem família inferida do nome v1
+ok 32 - Sem família inferida do nome v1
+  ---
+  duration_ms: 1.126674
+  ...
+# Subtest: Plano não homologa F3
+ok 33 - Plano não homologa F3
+  ---
+  duration_ms: 1.336628
+  ...
+# Subtest: Job exige aprovação exata
+ok 34 - Job exige aprovação exata
+  ---
+  duration_ms: 1.451656
+  ...
+# Subtest: Job tem hash e não transporta fonte
+ok 35 - Job tem hash e não transporta fonte
+  ---
+  duration_ms: 4.280315
+  ...
+# Subtest: Job alterado é recusado
+ok 36 - Job alterado é recusado
+  ---
+  duration_ms: 1.138807
+  ...
+# Subtest: Nova origem invalida job
+ok 37 - Nova origem invalida job
+  ---
+  duration_ms: 2.488579
+  ...
+# Subtest: Manifesto de fontes adulterado bloqueia
+ok 38 - Manifesto de fontes adulterado bloqueia
+  ---
+  duration_ms: 0.464097
+  ...
+# Subtest: Colisão de fontes embutidas bloqueia
+ok 39 - Colisão de fontes embutidas bloqueia
+  ---
+  duration_ms: 2.363482
+  ...
+# Subtest: OST continua pausada
+ok 40 - OST continua pausada
+  ---
+  duration_ms: 0.590907
+  ...
+# Subtest: Bytes de entrada não são alterados
+ok 41 - Bytes de entrada não são alterados
+  ---
+  duration_ms: 3.865911
+  ...
+# Subtest: Erro JSON não revela conteúdo
+ok 42 - Erro JSON não revela conteúdo
+  ---
+  duration_ms: 0.189522
+  ...
+# Subtest: Impressão digital independe da ordem de entrada
+ok 43 - Impressão digital independe da ordem de entrada
+  ---
+  duration_ms: 2.947682
+  ...
+# Subtest: Job bloqueia adaptador manual
+ok 44 - Job bloqueia adaptador manual
+  ---
+  duration_ms: 1.174088
+  ...
+# Subtest: Total agregado excedido bloqueia
+ok 45 - Total agregado excedido bloqueia
+  ---
+  duration_ms: 0.359401
+  ...
+# Subtest: Componentes legados excedidos bloqueiam
+ok 46 - Componentes legados excedidos bloqueiam
+  ---
+  duration_ms: 0.568229
+  ...
+# Subtest: Pausa OST respeita module_id mesmo renomeado
+ok 47 - Pausa OST respeita module_id mesmo renomeado
+  ---
+  duration_ms: 2.070408
+  ...
+1..47
+# tests 47
+# suites 0
+# pass 47
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 131.594992

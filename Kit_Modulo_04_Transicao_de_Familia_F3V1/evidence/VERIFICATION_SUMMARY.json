@@ -1,0 +1,28 @@
+{
+  "status": "candidate_blocked_not_f3_release",
+  "officialBuildExecuted": false,
+  "counts": {
+    "core": 47,
+    "chromium": 31,
+    "privateRecovery": 13,
+    "schema": 4
+  },
+  "failuresInExecutedChecks": 0,
+  "releaseCheck": {
+    "exit": 2,
+    "expectedBlocked": true
+  },
+  "unexecuted": [
+    "Vite/Lit/TypeScript build",
+    "pnpm transitive lockfile",
+    "Ajv compilation",
+    "method/domain migration",
+    "suite of converted modules",
+    "Caddy/Docker",
+    "public HTTPS deployment",
+    "Firefox/WebKit",
+    "full human accessibility audit",
+    "PWA/offline upgrade"
+  ],
+  "ost": "paused"
+}

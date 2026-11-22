@@ -1,0 +1,129 @@
+{
+  "carriedFrom": "R0 aprovada",
+  "references": [
+    {
+      "id": "R01",
+      "name": "Vite build",
+      "url": "https://vite.dev/guide/build"
+    },
+    {
+      "id": "R02",
+      "name": "Vite static deploy",
+      "url": "https://vite.dev/guide/static-deploy"
+    },
+    {
+      "id": "R03",
+      "name": "Lit",
+      "url": "https://lit.dev/"
+    },
+    {
+      "id": "R04",
+      "name": "DTCG2025.10",
+      "url": "https://www.designtokens.org/tr/2025.10/"
+    },
+    {
+      "id": "R05",
+      "name": "Storybook Web Components",
+      "url": "https://storybook.js.org/docs/get-started/frameworks/web-components-vite"
+    },
+    {
+      "id": "R06",
+      "name": "Storybook a11y",
+      "url": "https://storybook.js.org/docs/writing-tests/accessibility-testing"
+    },
+    {
+      "id": "R07",
+      "name": "Storybook Vitest",
+      "url": "https://storybook.js.org/docs/writing-tests/integrations/vitest-addon"
+    },
+    {
+      "id": "R08",
+      "name": "pnpm workspaces",
+      "url": "https://pnpm.io/workspaces/"
+    },
+    {
+      "id": "R09",
+      "name": "MDN Service Workers",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers"
+    },
+    {
+      "id": "R10",
+      "name": "web.dev offline data",
+      "url": "https://web.dev/learn/pwa/offline-data"
+    },
+    {
+      "id": "R11",
+      "name": "OWASP microfrontends",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Micro_Frontend_Security_Cheat_Sheet.html"
+    },
+    {
+      "id": "R12",
+      "name": "OWASP HTML5",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html"
+    },
+    {
+      "id": "R13",
+      "name": "MDN iframe",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe"
+    },
+    {
+      "id": "R14",
+      "name": "Caddy file server",
+      "url": "https://caddyserver.com/docs/caddyfile/directives/file_server"
+    },
+    {
+      "id": "R15",
+      "name": "Caddy HTTPS",
+      "url": "https://caddyserver.com/docs/automatic-https"
+    },
+    {
+      "id": "R16",
+      "name": "Ajv security",
+      "url": "https://ajv.js.org/security.html"
+    },
+    {
+      "id": "R17",
+      "name": "Playwright projects",
+      "url": "https://playwright.dev/docs/test-projects"
+    },
+    {
+      "id": "R18",
+      "name": "Astro islands",
+      "url": "https://docs.astro.build/en/concepts/islands/"
+    },
+    {
+      "id": "R19",
+      "name": "Next static export",
+      "url": "https://nextjs.org/docs/app/guides/static-exports"
+    },
+    {
+      "id": "R20",
+      "name": "OWASP HTTP Headers",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html"
+    },
+    {
+      "id": "R21",
+      "name": "Node releases",
+      "url": "https://nodejs.org/en/about/previous-releases"
+    },
+    {
+      "id": "R22",
+      "name": "StranglerFig",
+      "url": "https://martinfowler.com/bliki/StranglerFigApplication.html"
+    },
+    {
+      "id": "R23",
+      "name": "Local-first",
+      "url": "https://www.inkandswitch.com/essay/local-first/local-first.pdf"
+    }
+  ],
+  "repositories": [
+    "vitejs/vite",
+    "lit/lit",
+    "storybookjs/storybook",
+    "design-tokens/community-group",
+    "single-spa/single-spa",
+    "bigskysoftware/htmx"
+  ],
+  "limits": "6repos catalogados,2READMEs lidos;níveis detalhados constavam do registroR0. Não é auditoria de código/licença. Nesta rodada consultou-se metadata npm para fixar versões diretas,sem baixar dependências."
+}

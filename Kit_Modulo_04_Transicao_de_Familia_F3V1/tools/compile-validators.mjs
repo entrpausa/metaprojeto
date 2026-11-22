@@ -1,0 +1,3 @@
+import fs from 'node:fs/promises';import Ajv2020 from 'ajv/dist/2020.js';import standalone from 'ajv/dist/standalone/index.js';
+const root=new URL('../',import.meta.url);const read=async n=>JSON.parse(await fs.readFile(new URL(n,root),'utf8'));
+const ajv=new Ajv2020({strict:true,code:{source:true}});ajv.addSchema(await read('schemas/plan.schema.json'));ajv.addSchema(await read('schemas/private-job.schema.json'));await fs.mkdir(new URL('generated/',root),{recursive:true});await fs.writeFile(new URL('generated/validators.cjs',root),standalone(ajv,{validatePlan:'urn:atelie:plan:1',validateJob:'urn:atelie:private-job:1'}));

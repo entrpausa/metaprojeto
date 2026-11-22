@@ -1,0 +1,6 @@
+# TEMPLATE NÃO HOMOLOGADO. Exige imagem fixada por digest e dist oficial aprovado.
+ARG CADDY_IMAGE
+FROM ${CADDY_IMAGE}
+COPY deployment/Caddyfile.template /etc/caddy/Caddyfile
+COPY dist/migrator/ /srv/atelie/
+RUN test -f /srv/atelie/RELEASE_APPROVED

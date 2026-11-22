@@ -1,0 +1,64 @@
+{
+  "checks": [
+    {
+      "name": "modulo-00-v1: job aprovado para recuperação privada",
+      "pass": true
+    },
+    {
+      "name": "modulo-00-v1: recuperação executada",
+      "pass": true,
+      "detail": "{\"status\":\"private_recovery_completed_not_f3\",\"files\":12}"
+    },
+    {
+      "name": "modulo-00-v1: recuperação não se declara F3",
+      "pass": true
+    },
+    {
+      "name": "modulo-00-v1: original bit a bit",
+      "pass": true
+    },
+    {
+      "name": "modulo-00-v1: hashes recuperados conferem",
+      "pass": true,
+      "units": 12
+    },
+    {
+      "name": "modulo-00-v1: destino existente não sobrescrito",
+      "pass": true
+    },
+    {
+      "name": "open-space-f2-v1: job aprovado para recuperação privada",
+      "pass": true
+    },
+    {
+      "name": "open-space-f2-v1: recuperação executada",
+      "pass": true,
+      "detail": "{\"status\":\"private_recovery_completed_not_f3\",\"files\":32}"
+    },
+    {
+      "name": "open-space-f2-v1: recuperação não se declara F3",
+      "pass": true
+    },
+    {
+      "name": "open-space-f2-v1: original bit a bit",
+      "pass": true
+    },
+    {
+      "name": "open-space-f2-v1: hashes recuperados conferem",
+      "pass": true,
+      "units": 32
+    },
+    {
+      "name": "Open Space:32 fontes idênticas ao conteúdo embutido",
+      "pass": true
+    },
+    {
+      "name": "open-space-f2-v1: destino existente não sobrescrito",
+      "pass": true
+    }
+  ],
+  "passed": 13,
+  "failed": 0,
+  "scope": "Recuperação privada, não conversão F3",
+  "recoveredContentsDistributed": false
+}

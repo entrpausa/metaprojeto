@@ -1,0 +1,22 @@
+{
+  "validator": "Python jsonschema 4.23.0",
+  "checks": [
+    {
+      "name": "modulo-00-v1.job.json:contrato válido",
+      "pass": true
+    },
+    {
+      "name": "modulo-00-v1.job.json:publicação indevida recusada",
+      "pass": true
+    },
+    {
+      "name": "open-space-f2-v1.job.json:contrato válido",
+      "pass": true
+    },
+    {
+      "name": "open-space-f2-v1.job.json:publicação indevida recusada",
+      "pass": true
+    }
+  ],
+  "ajvExecuted": false
+}

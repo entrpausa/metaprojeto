@@ -1,0 +1,17 @@
+{
+  "system": "Linux",
+  "architecture": "x86_64",
+  "node": "v20.20.2",
+  "tools": {
+    "pnpm": false,
+    "vite": false,
+    "tsc": false,
+    "caddy": false,
+    "docker": false
+  },
+  "browser_executables": {
+    "chromium": true,
+    "firefox": false,
+    "webkit": false
+  }
+}

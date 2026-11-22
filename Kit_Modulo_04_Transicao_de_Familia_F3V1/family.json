@@ -1,0 +1,15 @@
+{
+  "family": "Atelie",
+  "target_family_version": "3.0.0",
+  "family_version": null,
+  "module_id": "transicao-de-familia",
+  "module_number": "04",
+  "artifact_version": "0.1.0-candidate.1",
+  "target_file_edition": "F3V1",
+  "status": "blocked_candidate",
+  "releaseApproved": false,
+  "publicationAuthorized": false,
+  "ost": "paused",
+  "entryPreview": "preview/index.html",
+  "officialEntry": "apps/migrator/main.ts"
+}

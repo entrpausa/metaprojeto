@@ -1,0 +1,10 @@
+import fs from 'node:fs/promises';import {fileURLToPath} from 'node:url';import {createHash} from 'node:crypto';
+const root=fileURLToPath(new URL('../',import.meta.url)),read=n=>fs.readFile(root+n,'utf8');
+let core=await read('packages/core/core.mjs'),ui=await read('packages/ui/console.mjs');
+core=core.replace(/^export /gm,'');ui=ui.replace(/^import [^\n]+\n/,'').replace(/^export /gm,'');if(/^\s*(import|export)\s/m.test(core+'\n'+ui))throw Error('Source de preview contém módulo não resolvido');
+const script=('(()=>{\n"use strict";\n'+core+'\n'+ui+'\n})();').replace(/<\/script/gi,'<\\/script');const style=await read('packages/tokens/tokens.css');const h=x=>createHash('sha256').update(x).digest('base64');
+const csp="default-src 'none'; script-src 'sha256-"+h(script)+"'; style-src 'sha256-"+h(style)+"'; img-src 'none'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'";
+function html(body){return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="'+csp+'"><meta name="referrer" content="no-referrer"><title>Ateliê — Prévia candidata F3</title><style>'+style+'</style></head><body><main>'+body+'</main><script>'+script+'<'+'/script></body></html>';}
+await fs.mkdir(root+'preview/suite',{recursive:true});await fs.writeFile(root+'preview/index.html',html('<atelie-f3-migrator></atelie-f3-migrator>'));await fs.writeFile(root+'preview/suite/index.html',html('<p>Prova técnica de duas instâncias; não é uma família de legados convertida.</p><atelie-f3-migrator></atelie-f3-migrator><atelie-f3-migrator></atelie-f3-migrator>'));
+await fs.writeFile(root+'preview/PREVIEW_METADATA.json',JSON.stringify({status:'auxiliary_preview_not_official_build',officialStackExecuted:false,sourceFiles:['packages/core/core.mjs','packages/ui/console.mjs','packages/tokens/tokens.css'],csp,sourceSha256:createHash('sha256').update(core+'\n'+ui+'\n'+style).digest('hex')},null,2));
+console.log('Prévia auxiliar gerada; não é vite build e não homologa F3.');

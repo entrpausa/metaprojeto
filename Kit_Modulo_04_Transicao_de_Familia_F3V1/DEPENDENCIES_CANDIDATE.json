@@ -1,0 +1,22 @@
+{
+  "status": "declared_not_installed_or_locked",
+  "selected": {
+    "lit": "3.3.3",
+    "vite": "8.3.5",
+    "typescript": "7.0.2",
+    "vitest": "5.1.0",
+    "ajv": "8.20.0",
+    "@types/node": "24.19.2"
+  },
+  "packageManager": "pnpm@12.9.1",
+  "metadataSources": [
+    "https://registry.npmjs.org/vite/latest",
+    "https://npmjs.com/package/lit",
+    "https://registry.npmjs.org/typescript/latest",
+    "https://registry.npmjs.org/ajv/latest",
+    "https://registry.npmjs.org/pnpm/latest",
+    "https://registry.npmjs.org/vitest/latest"
+  ],
+  "transitiveLockfile": null,
+  "compatibilityVerified": false
+}

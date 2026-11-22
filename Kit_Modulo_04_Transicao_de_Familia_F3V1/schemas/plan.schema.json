@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:atelie:plan:1",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "const": "atelie-plan/1"
+    },
+    "policyVersion": {
+      "const": "1.0.0"
+    },
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "adapter": {
+            "type": "string"
+          },
+          "operation": {
+            "enum": [
+              "recover_private_sources",
+              "manual_mapping"
+            ]
+          },
+          "blocked": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "adapter",
+          "operation",
+          "blocked"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 256
+    },
+    "profiles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "not_verified",
+              "conditional"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "status"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "status": {
+      "const": "recovery_only_not_f3"
+    },
+    "publicationAuthorized": {
+      "const": false
+    }
+  },
+  "required": [
+    "schema",
+    "policyVersion",
+    "fingerprint",
+    "operations",
+    "profiles",
+    "blockers",
+    "status",
+    "publicationAuthorized"
+  ],
+  "additionalProperties": false
+}

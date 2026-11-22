@@ -1,0 +1,1 @@
+export class MigrationConsole extends HTMLElement {static contractVersion:string;revision:number;records:{path:string;bytes:Uint8Array}[];analysis:unknown;loadFiles(files:FileList):Promise<void>;loadExample():void;runAnalysis():Promise<void>;clear():void;}

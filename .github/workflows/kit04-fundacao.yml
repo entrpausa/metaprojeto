@@ -1,0 +1,124 @@
+name: Kit 04 - sonda R2, sem homologacao
+
+on:
+  push:
+    branches: [f3/kit-04-consolidacao]
+    paths:
+      - 'Kit_Modulo_04_Transicao_de_Familia_F3V1/**'
+      - '.github/workflows/kit04-fundacao.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kit04-fundacao-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sonda-r2:
+    if: github.event.repository.private == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: bash
+        working-directory: Kit_Modulo_04_Transicao_de_Familia_F3V1
+    env:
+      npm_config_engine_strict: 'true'
+      npm_config_registry: https://registry.npmjs.org
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Obter referencia original para a auditoria
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: 7c3c9a57beab847bf7a08565d2b7a185ee4c90f4
+          path: .kit04-baseline
+          persist-credentials: false
+      - name: Preparar Node sem alterar a familia aprovada
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '26'
+      - name: Conferir candidato antes de gerar arquivos
+        run: node ../tools/audit-kit04.mjs ../.kit04-baseline/Kit_Modulo_04_Transicao_de_Familia_F3V1
+      - name: Preparar somente o gerenciador declarado
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115
+        with:
+          version: '12.9.1'
+          package_json_file: Kit_Modulo_04_Transicao_de_Familia_F3V1/package.json
+          run_install: false
+          cache: false
+      - name: Conferir ferramentas e registrar ambiente
+        id: tools
+        run: |
+          mkdir -p "$RUNNER_TEMP/kit04-r2"
+          node --version | tee "$RUNNER_TEMP/kit04-r2/node.log"
+          pnpm --version | tee "$RUNNER_TEMP/kit04-r2/pnpm.log"
+          node -e "if(Number(process.versions.node.split('.')[0])!==26)process.exit(1)"
+          test "$(pnpm --version)" = '12.9.1'
+          test "$(pnpm config get engine-strict)" = 'true'
+          sha256sum package.json > "$RUNNER_TEMP/kit04-r2/package.sha256"
+      - name: Resolver lockfile sem lifecycle ou pnpmfile
+        id: resolve
+        continue-on-error: true
+        run: |
+          pnpm install --lockfile-only --no-frozen-lockfile --ignore-scripts --ignore-pnpmfile 2>&1 | tee "$RUNNER_TEMP/kit04-r2/resolve.log"
+          git diff --exit-code -- package.json pnpm-workspace.yaml
+          cp pnpm-lock.yaml "$RUNNER_TEMP/kit04-r2/pnpm-lock.yaml"
+      - name: Instalar a resolucao congelada sem lifecycle
+        id: install
+        if: steps.resolve.outcome == 'success'
+        continue-on-error: true
+        run: |
+          pnpm install --frozen-lockfile --ignore-scripts --ignore-pnpmfile 2>&1 | tee "$RUNNER_TEMP/kit04-r2/install.log"
+          cmp pnpm-lock.yaml "$RUNNER_TEMP/kit04-r2/pnpm-lock.yaml"
+          sha256sum --check "$RUNNER_TEMP/kit04-r2/package.sha256"
+          git diff --exit-code -- package.json pnpm-workspace.yaml
+          node --input-type=module -e 'import fs from "node:fs";const p=JSON.parse(fs.readFileSync("package.json","utf8"));const rows=Object.entries({...p.dependencies,...p.devDependencies}).map(([name,declared])=>{const d=JSON.parse(fs.readFileSync("node_modules/"+name+"/package.json","utf8"));return {name,declared,installed:d.version,license:d.license||"NOASSERTION",engines:d.engines||null};});fs.writeFileSync(process.env.RUNNER_TEMP+"/kit04-r2/installed.json",JSON.stringify(rows,null,2)+"\n");if(rows.some(r=>r.installed!==r.declared))process.exit(1);' 2>&1 | tee "$RUNNER_TEMP/kit04-r2/packages.log"
+      - name: Executar tipagem declarada, ainda de escopo parcial
+        id: types
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        run: pnpm run typecheck 2>&1 | tee "$RUNNER_TEMP/kit04-r2/types.log"
+      - name: Executar compilacao Ajv declarada
+        id: schemas
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        run: pnpm run compile:schemas 2>&1 | tee "$RUNNER_TEMP/kit04-r2/schemas.log"
+      - name: Executar suite Vitest declarada
+        id: tests
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        run: pnpm run test:official 2>&1 | tee "$RUNNER_TEMP/kit04-r2/tests.log"
+      - name: Executar build Vite declarado
+        id: build
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        run: pnpm run build 2>&1 | tee "$RUNNER_TEMP/kit04-r2/build.log"
+      - name: Registrar resultados sem promover R2 ou F3
+        if: always()
+        env:
+          S_TOOLS: ${{ steps.tools.outcome }}
+          S_RESOLVE: ${{ steps.resolve.outcome }}
+          S_INSTALL: ${{ steps.install.outcome }}
+          S_TYPES: ${{ steps.types.outcome }}
+          S_SCHEMAS: ${{ steps.schemas.outcome }}
+          S_TESTS: ${{ steps.tests.outcome }}
+          S_BUILD: ${{ steps.build.outcome }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/kit04-r2"
+          node --input-type=module -e 'import fs from "node:fs";const names=["TOOLS","RESOLVE","INSTALL","TYPES","SCHEMAS","TESTS","BUILD"];const stages=Object.fromEntries(names.map(n=>[n.toLowerCase(),process.env["S_"+n]||"unknown"]));const result={commit:process.env.GITHUB_SHA,node:process.version,stages,planningSourceSha256:"dab2e94a4b38edd338e87380b7385965d575f7e54e2f581cd4c6c3d15aaaaaf9",typecheckConfiguration:JSON.parse(fs.readFileSync("tsconfig.json","utf8")),coreTypingVerified:false,canClaimR2Complete:false,canClaimF3Complete:false,publicationAuthorized:false};fs.writeFileSync(process.env.RUNNER_TEMP+"/kit04-r2/result.json",JSON.stringify(result,null,2)+"\n");'
+          printf '%s\n' '## Sonda R2' 'Configuracao original: tipagem parcial; verde nao fecha R2 nem homologa F3.' 'Resultados e lockfile, se gerado, ficam no artefato privado desta execucao.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Guardar somente lockfile e diagnosticos privados
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: kit04-r2-${{ github.sha }}
+          path: ${{ runner.temp }}/kit04-r2/
+          retention-days: 7
+          if-no-files-found: warn
+      - name: Falhar se alguma etapa nao passou
+        if: always()
+        run: |
+          node --input-type=module -e 'import fs from "node:fs";const r=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+"/kit04-r2/result.json","utf8"));if(Object.values(r.stages).some(v=>v!=="success"))process.exit(1);'

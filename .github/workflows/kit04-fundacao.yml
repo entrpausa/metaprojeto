@@ -26,6 +26,8 @@ jobs:
     env:
       npm_config_engine_strict: 'true'
       npm_config_registry: https://registry.npmjs.org
+      pnpm_config_engine_strict: 'true'
+      pnpm_config_registry: https://registry.npmjs.org
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -54,16 +56,25 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/kit04-r2"
           node --version | tee "$RUNNER_TEMP/kit04-r2/node.log"
-          pnpm --version | tee "$RUNNER_TEMP/kit04-r2/pnpm.log"
-          node -e "if(Number(process.versions.node.split('.')[0])!==26)process.exit(1)"
-          test "$(pnpm --version)" = '12.9.1'
-          test "$(pnpm config get engine-strict)" = 'true'
+          PNPM_VERSION="$(pnpm --version)"
+          printf '%s\n' "$PNPM_VERSION" | tee "$RUNNER_TEMP/kit04-r2/pnpm.log"
+          node -e 'if(Number(process.versions.node.split(".")[0])!==26){console.error("Node fora da familia 26: "+process.version);process.exit(1)}'
+          if [ "$PNPM_VERSION" != '12.9.1' ]; then
+            printf 'pnpm incorreto: esperado=12.9.1 obtido=%s\n' "$PNPM_VERSION" >&2
+            exit 1
+          fi
+          ENGINE_STRICT="$(pnpm config get engineStrict)"
+          printf 'pnpm engineStrict=%s\n' "$ENGINE_STRICT"
+          if [ "$ENGINE_STRICT" != 'true' ]; then
+            printf 'engineStrict deve ser true; instalacao bloqueada.\n' >&2
+            exit 1
+          fi
           sha256sum package.json > "$RUNNER_TEMP/kit04-r2/package.sha256"
       - name: Resolver lockfile sem lifecycle ou pnpmfile
         id: resolve
         continue-on-error: true
         run: |
-          pnpm install --lockfile-only --no-frozen-lockfile --ignore-scripts --ignore-pnpmfile 2>&1 | tee "$RUNNER_TEMP/kit04-r2/resolve.log"
+          pnpm install --engine-strict --lockfile-only --no-frozen-lockfile --ignore-scripts --ignore-pnpmfile 2>&1 | tee "$RUNNER_TEMP/kit04-r2/resolve.log"
           git diff --exit-code -- package.json pnpm-workspace.yaml
           cp pnpm-lock.yaml "$RUNNER_TEMP/kit04-r2/pnpm-lock.yaml"
       - name: Instalar a resolucao congelada sem lifecycle
@@ -71,7 +82,7 @@ jobs:
         if: steps.resolve.outcome == 'success'
         continue-on-error: true
         run: |
-          pnpm install --frozen-lockfile --ignore-scripts --ignore-pnpmfile 2>&1 | tee "$RUNNER_TEMP/kit04-r2/install.log"
+          pnpm install --engine-strict --frozen-lockfile --ignore-scripts --ignore-pnpmfile 2>&1 | tee "$RUNNER_TEMP/kit04-r2/install.log"
           cmp pnpm-lock.yaml "$RUNNER_TEMP/kit04-r2/pnpm-lock.yaml"
           sha256sum --check "$RUNNER_TEMP/kit04-r2/package.sha256"
           git diff --exit-code -- package.json pnpm-workspace.yaml
@@ -129,4 +140,4 @@ jobs:
       - name: Falhar se alguma etapa nao passou
         if: always()
         run: |
-          node --input-type=module -e 'import fs from "node:fs";const r=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+"/kit04-r2/result.json","utf8"));if(Object.values(r.stages).some(v=>v!=="success"))process.exit(1);'
+          node --input-type=module -e 'import fs from "node:fs";const r=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+"/kit04-r2/result.json","utf8"));const failed=Object.entries(r.stages).filter(([,v])=>v!=="success");if(failed.length){console.error("R2 bloqueada; etapas sem sucesso: "+JSON.stringify(Object.fromEntries(failed)));process.exit(1);}console.log("Comandos da sonda passaram; R2/F3 continuam sem homologacao automatica.");'

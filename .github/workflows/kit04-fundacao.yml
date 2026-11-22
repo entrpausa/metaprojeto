@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   sonda-r2:
-    if: github.event.repository.private == true
+    if: github.repository == 'entrpausa/metaprojeto' && github.event.repository.private == false
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     defaults:
@@ -108,16 +108,24 @@ jobs:
           S_BUILD: ${{ steps.build.outcome }}
         run: |
           mkdir -p "$RUNNER_TEMP/kit04-r2"
-          node --input-type=module -e 'import fs from "node:fs";const names=["TOOLS","RESOLVE","INSTALL","TYPES","SCHEMAS","TESTS","BUILD"];const stages=Object.fromEntries(names.map(n=>[n.toLowerCase(),process.env["S_"+n]||"unknown"]));const result={commit:process.env.GITHUB_SHA,node:process.version,stages,planningSourceSha256:"dab2e94a4b38edd338e87380b7385965d575f7e54e2f581cd4c6c3d15aaaaaf9",typecheckConfiguration:JSON.parse(fs.readFileSync("tsconfig.json","utf8")),coreTypingVerified:false,canClaimR2Complete:false,canClaimF3Complete:false,publicationAuthorized:false};fs.writeFileSync(process.env.RUNNER_TEMP+"/kit04-r2/result.json",JSON.stringify(result,null,2)+"\n");'
-          printf '%s\n' '## Sonda R2' 'Configuracao original: tipagem parcial; verde nao fecha R2 nem homologa F3.' 'Resultados e lockfile, se gerado, ficam no artefato privado desta execucao.' >> "$GITHUB_STEP_SUMMARY"
-      - name: Guardar somente lockfile e diagnosticos privados
+          node --input-type=module -e 'import fs from "node:fs";const names=["TOOLS","RESOLVE","INSTALL","TYPES","SCHEMAS","TESTS","BUILD"];const stages=Object.fromEntries(names.map(n=>[n.toLowerCase(),process.env["S_"+n]||"unknown"]));const result={commit:process.env.GITHUB_SHA,node:process.version,stages,planningSourceSha256:"dab2e94a4b38edd338e87380b7385965d575f7e54e2f581cd4c6c3d15aaaaaf9",typecheckConfiguration:JSON.parse(fs.readFileSync("tsconfig.json","utf8")),coreTypingVerified:false,canClaimR2Complete:false,canClaimF3Complete:false,ciVisibility:"public_technical_only",publicationAuthorized:false};fs.writeFileSync(process.env.RUNNER_TEMP+"/kit04-r2/result.json",JSON.stringify(result,null,2)+"\n");'
+          printf '%s\n' '## Sonda R2' 'Configuracao original: tipagem parcial; verde nao fecha R2 nem homologa F3.' 'Logs sao publicos; artefato limitado a lockfile e metadados tecnicos publicos.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Limitar os arquivos tecnicos publicaveis
+        id: public_files
         if: always()
+        run: node --input-type=module -e 'import fs from "node:fs";const root=process.env.RUNNER_TEMP+"/kit04-r2/";const names=["result.json","installed.json","pnpm-lock.yaml","package.sha256"];let total=0;if(!fs.existsSync(root+"result.json"))throw Error("Relatorio ausente");for(const n of names){try{const s=fs.lstatSync(root+n);if(!s.isFile()||s.isSymbolicLink())throw Error("Arquivo nao regular");total+=s.size;}catch(e){if(e.code!=="ENOENT")throw e;}}if(total>1048576)throw Error("Artefato acima do limite de 1 MiB");console.log(JSON.stringify({publicTechnicalFiles:true,totalBytes:total,maxBytes:1048576}));'
+      - name: Guardar somente lockfile e metadados tecnicos publicos
+        if: always() && steps.public_files.outcome == 'success'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: kit04-r2-${{ github.sha }}
-          path: ${{ runner.temp }}/kit04-r2/
+          name: kit04-r2-public-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/kit04-r2/result.json
+            ${{ runner.temp }}/kit04-r2/installed.json
+            ${{ runner.temp }}/kit04-r2/pnpm-lock.yaml
+            ${{ runner.temp }}/kit04-r2/package.sha256
           retention-days: 7
-          if-no-files-found: warn
+          if-no-files-found: error
       - name: Falhar se alguma etapa nao passou
         if: always()
         run: |
